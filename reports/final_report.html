@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>final_report</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="final-project-report-brent-oil-price-change-point-analysis-19872022">Final Project Report: Brent Oil Price Change Point Analysis (1987–2022)</h1>
+<p><strong>Author</strong>: (Your Name)<br />
+<strong>Date</strong>: February 11, 2026<br />
+<strong>Project</strong>: Brent oil price regime shift / change-point analysis + small interactive dashboard</p>
+<h2 id="executive-summary">1. Executive Summary</h2>
+<p>This project analyzes daily Brent crude oil prices (1987–2022) to identify statistically meaningful regime shifts and connect them to major geopolitical and macroeconomic events. The core statistical model is a <strong>Bayesian single switch-point model</strong> (implemented in <code>PyMC</code>) applied to <strong>log-returns</strong>, supported by EDA and stationarity testing. For interpretation, the analysis overlays a curated list of historical events and highlights key dates commonly associated with major market transitions (e.g., 2008 crisis dynamics, 2014 OPEC regime change, 2020 COVID-era disruption, 2022 Russia–Ukraine shock).</p>
+<p>In addition to the notebooks, a lightweight <strong>Flask + React</strong> dashboard plots the price series and displays a highlighted change-point date.</p>
+<h2 id="problem-statement-and-objectives">2. Problem Statement and Objectives</h2>
+<p>Oil prices are volatile and can shift abruptly due to shocks (wars, policy changes, demand collapses). The goals of this project were to:</p>
+<ul>
+<li><strong>Characterize</strong> Brent price dynamics using exploratory analysis.</li>
+<li><strong>Verify stationarity behavior</strong> (non-stationary levels vs. stationary returns).</li>
+<li><strong>Estimate a Bayesian change point</strong> on returns to detect a structural break in the data-generating process.</li>
+<li><strong>Map statistically/analytically important dates</strong> to a curated event timeline for interpretation.</li>
+<li><strong>Communicate results</strong> via a simple interactive dashboard.</li>
+</ul>
+<h2 id="data">3. Data</h2>
+<ul>
+<li><strong>Primary series</strong>: <code>data/raw/brent_oil_prices.csv</code> (daily <code>Date</code>, <code>Price</code>)</li>
+<li><strong>Event timeline</strong>: <code>data/processed/key_events.csv</code> (15 curated historical events with dates and descriptions)</li>
+</ul>
+<h2 id="project-structure-submission-inventory">4. Project Structure (submission inventory)</h2>
+<p>The following files are present in the repository (excluding <code>.git/</code> and <code>node_modules/</code>):</p>
+<pre class="text"><code>./.gitignore
+./dashboard/backend/app.py
+./dashboard/frontend/package.json
+./dashboard/frontend/package-lock.json
+./dashboard/frontend/src/App.jsx
+./data/processed/key_events.csv
+./data/raw/brent_oil_prices.csv
+./notebooks/01_eda.ipynb
+./notebooks/02_stationarity_analysis.ipynb
+./notebooks/03_bayesian_change_point.ipynb
+./notebooks/04_event_association.ipynb
+./reports/final_report.md
+./reports/task_1_foundation.md</code></pre>
+<h2 id="methodology">5. Methodology</h2>
+<h3 id="exploratory-data-analysis-eda">5.1 Exploratory Data Analysis (EDA)</h3>
+<p>In <code>notebooks/01_eda.ipynb</code>, the series is loaded, indexed by date, and plotted to visualize:</p>
+<ul>
+<li>Long-run trend and large swings (boom/bust cycles)</li>
+<li>Clustering of volatility during crisis periods</li>
+<li>Plausible “regime” behavior (different eras with different typical levels/variance)</li>
+</ul>
+<h3 id="stationarity-testing">5.2 Stationarity Testing</h3>
+<p>In <code>notebooks/02_stationarity_analysis.ipynb</code>:</p>
+<ul>
+<li>Prices are transformed into <strong>log-returns</strong>: ( r_t = (P_t) - (P_{t-1}) )</li>
+<li>An <strong>Augmented Dickey-Fuller (ADF)</strong> test is run on returns to validate the modeling choice (returns are typically closer to stationary than price levels).</li>
+</ul>
+<h3 id="bayesian-change-point-model-single-switch-point">5.3 Bayesian Change Point Model (single switch-point)</h3>
+<p>In <code>notebooks/03_bayesian_change_point.ipynb</code>, a Bayesian “switch-point” model is fit to returns:</p>
+<ul>
+<li>The change point ( ) is modeled as an <strong>unknown discrete time index</strong>.</li>
+<li>Two return means ( _1 ) and ( _2 ) apply before/after ( ).</li>
+<li>A shared noise scale ( ) is assumed.</li>
+<li>Inference is performed using <strong>MCMC sampling</strong> in <code>PyMC</code>.</li>
+</ul>
+<p>This produces a posterior distribution over ( ), allowing estimation of the most likely break location and uncertainty around it.</p>
+<h3 id="event-association-interpretation-overlay">5.4 Event Association (interpretation overlay)</h3>
+<p>In <code>notebooks/04_event_association.ipynb</code>, event association is performed by:</p>
+<ul>
+<li>Creating a small table of “key” change-point dates (e.g., 2008-09-15, 2014-11-27, 2020-03-15, 2022-02-24).</li>
+<li>Matching events within a configurable window (e.g., ±30 days) to provide contextual interpretation.</li>
+</ul>
+<p><strong>Important note</strong>: this step is an interpretation overlay. Only the <code>PyMC</code> notebook is a statistical estimation of a change point; the multi-date list used for event association is a curated set of historically significant dates used to contextualize regimes.</p>
+<h2 id="results-what-was-produced">6. Results (what was produced)</h2>
+<h3 id="stationarity-result-qualitative">6.1 Stationarity result (qualitative)</h3>
+<p>Consistent with standard financial time series behavior:</p>
+<ul>
+<li><strong>Price levels</strong> behave like a non-stationary process (trend + shocks).</li>
+<li><strong>Log-returns</strong> are more stable and suitable for change-point modeling.</li>
+</ul>
+<h3 id="bayesian-change-point-single-switch-point">6.2 Bayesian change point (single switch-point)</h3>
+<p>The Bayesian model provides:</p>
+<ul>
+<li>An estimated break index ( ) (posterior mean/median)</li>
+<li>A corresponding <strong>calendar date</strong> mapped from the returns index</li>
+<li>An estimated shift in mean return (( _2 - _1 )) as an “impact” summary</li>
+</ul>
+<p>Because the switch-point model is single-break, it captures one dominant regime change rather than multiple breaks across the full history.</p>
+<h3 id="historical-context-key-regime-shift-dates">6.3 Historical context (key regime-shift dates)</h3>
+<p>The interpretation notebook highlights several widely recognized market transition dates and checks for nearby events in the curated timeline, including:</p>
+<ul>
+<li><strong>2008</strong>: global financial crisis dynamics</li>
+<li><strong>2014</strong>: OPEC production/strategy shift and shale-era supply expansion</li>
+<li><strong>2020</strong>: COVID-era demand shock + volatility spike</li>
+<li><strong>2022</strong>: Russia–Ukraine war and energy security risk premium</li>
+</ul>
+<h2 id="dashboard-communication-artifact">7. Dashboard (communication artifact)</h2>
+<p>The dashboard is a minimal end-to-end demonstrator:</p>
+<ul>
+<li><strong>Backend</strong> (<code>dashboard/backend/app.py</code>): Flask API serving:
+<ul>
+<li><code>/prices</code>: returns the raw CSV as JSON records</li>
+<li><code>/changepoints</code>: currently returns a single example change point (<code>2020-03-15</code>)</li>
+</ul></li>
+<li><strong>Frontend</strong> (<code>dashboard/frontend/src/...</code>): React + Recharts line chart that:
+<ul>
+<li>plots <code>Price</code> over <code>Date</code></li>
+<li>draws a vertical reference line at the change-point date</li>
+</ul></li>
+</ul>
+<h2 id="assumptions-and-limitations">8. Assumptions and Limitations</h2>
+<ul>
+<li><strong>Single-break model</strong>: the Bayesian model implemented is a <em>single</em> switch-point; markets often have multiple breaks, so a multi-change-point model would better reflect reality.</li>
+<li><strong>Correlation vs. causation</strong>: event alignment is temporal and interpretive; it does not prove causal impact.</li>
+<li><strong>Distributional assumptions</strong>: a Gaussian likelihood for returns is a simplification (returns can be heavy-tailed and heteroskedastic).</li>
+<li><strong>Operationalization gap</strong>: the dashboard currently displays a hard-coded change-point date; integrating notebook outputs into the API would strengthen reproducibility.</li>
+</ul>
+<h2 id="conclusion-and-future-work">9. Conclusion and Future Work</h2>
+<p>This project demonstrates a complete workflow from raw data to statistical modeling to stakeholder communication. The Bayesian switch-point model provides a principled way to estimate a structural break in return behavior, while the event overlay offers historical interpretation.</p>
+<p>Recommended extensions:</p>
+<ul>
+<li>Implement <strong>multiple</strong> change points (Bayesian MCP or frequentist methods) and compare results.</li>
+<li>Model <strong>time-varying volatility</strong> (e.g., GARCH or stochastic volatility) alongside mean shifts.</li>
+<li>Connect notebook outputs to the dashboard by exporting detected change points into <code>data/processed/</code> and serving them via the API.</li>
+</ul>
+<h2 id="how-to-run-reproducibility-notes">10. How to Run (reproducibility notes)</h2>
+<h3 id="run-the-backend">10.1 Run the backend</h3>
+<p>From <code>dashboard/backend/</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ex">python</span> app.py</span></code></pre></div>
+<h3 id="run-the-frontend">10.2 Run the frontend</h3>
+<p>From <code>dashboard/frontend/</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ex">npm</span> install</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="ex">npm</span> start</span></code></pre></div>
+<h2 id="export-to-pdf">11. Export to PDF</h2>
+<p>If you have <code>pandoc</code> installed, you can export this report to PDF from the repo root:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="ex">pandoc</span> reports/final_report.md -o reports/final_report.pdf</span></code></pre></div>
+</body>
+</html>

@@ -1,60 +1,145 @@
-# Final Project Report: Brent Oil Price Change Point Analysis
-**Date**: February 10, 2026
-**Subject**: Statistical analysis of structural breaks in Brent crude oil prices (1987-2022) using Bayesian modeling.
-
----
+# Final Project Report: Brent Oil Price Change Point Analysis (1987–2022)
+**Author**: (Your Name)  
+**Date**: February 11, 2026  
+**Project**: Brent oil price regime shift / change-point analysis + small interactive dashboard
 
 ## 1. Executive Summary
-This report details a comprehensive analysis of global Brent crude oil prices over a 35-year period. Utilizing Bayesian Change Point Detection, we identified four major structural breaks in price regimes that correlate strongly with significant geopolitical and economic events, including the 2008 Financial Crisis, the 2014 OPEC market shift, the 2020 COVID-19 pandemic, and the 2022 Russia-Ukraine conflict. The analysis provides a statistically rigorous framework for understanding how external shocks reshape global energy markets.
+This project analyzes daily Brent crude oil prices (1987–2022) to identify statistically meaningful regime shifts and connect them to major geopolitical and macroeconomic events. The core statistical model is a **Bayesian single switch-point model** (implemented in `PyMC`) applied to **log-returns**, supported by EDA and stationarity testing. For interpretation, the analysis overlays a curated list of historical events and highlights key dates commonly associated with major market transitions (e.g., 2008 crisis dynamics, 2014 OPEC regime change, 2020 COVID-era disruption, 2022 Russia–Ukraine shock).
 
-## 2. Introduction
-Oil prices are notoriously volatile, influenced by a complex interplay of supply-demand dynamics, geopolitical tensions, and macroeconomic policies. Traditional analysis often misses the "exact" moment a market shift occurs. The primary objective of this project was to:
-1.  Quantify the statistical properties of Brent oil prices.
-2.  Develop a Bayesian model to detect structural breaks (change points) in the data.
-3.  Associate these breaks with historical events to determine their temporal impact.
+In addition to the notebooks, a lightweight **Flask + React** dashboard plots the price series and displays a highlighted change-point date.
 
-## 3. Methodology
-### 3.1. Data Analysis Workflow
-The analysis followed a structured 5-stage pipeline:
-1.  **Preprocessing**: Cleaning and indexing daily Brent price data (Source: Federal Reserve Economic Data / Kaggle).
-2.  **Exploratory Data Analysis (EDA)**: Investigating trends, cycles, and volatility clustering.
-3.  **Stationarity Testing**: Using Augmented Dickey-Fuller (ADF) tests to confirm the suitability of data for time-series modeling.
-4.  **Bayesian Modeling**: Implementing a discrete switch-point model in `PyMC` to identify shifts in mean log-returns.
-5.  **Event Mapping**: Cross-referencing detected change points with a curated dataset of 15 major geopolitical events.
+## 2. Problem Statement and Objectives
+Oil prices are volatile and can shift abruptly due to shocks (wars, policy changes, demand collapses). The goals of this project were to:
 
-### 3.2. Theoretical Framework
-We utilized the **PELT (Pruned Exact Linear Time)** algorithm and **Bayesian MCMC sampling**. The model assumes the data follows a normal distribution where parameters $(\mu, \sigma)$ shift at an unknown time $t = \tau$.
+- **Characterize** Brent price dynamics using exploratory analysis.
+- **Verify stationarity behavior** (non-stationary levels vs. stationary returns).
+- **Estimate a Bayesian change point** on returns to detect a structural break in the data-generating process.
+- **Map statistically/analytically important dates** to a curated event timeline for interpretation.
+- **Communicate results** via a simple interactive dashboard.
 
-## 4. Empirical Results
-### 4.1. Time Series Properties
-*   **Trend**: The series exhibits a stochastic trend, with prices ranging from $9 to $147 per barrel.
-*   **Stationarity**: Price levels were found to be non-stationary ($p > 0.05$), while log-returns were stationary ($p < 0.01$), justifying the use of returns for the change point model.
-*   **Volatility**: Significant "volatility clustering" was observed, particularly during the 2008 and 2020 periods.
+## 3. Data
+- **Primary series**: `data/raw/brent_oil_prices.csv` (daily `Date`, `Price`)
+- **Event timeline**: `data/processed/key_events.csv` (15 curated historical events with dates and descriptions)
 
-### 4.2. Detected Change Points and Impact
-The Bayesian model identified the following critical structural breaks:
+## 4. Project Structure (submission inventory)
+The following files are present in the repository (excluding `.git/` and `node_modules/`):
 
-| Detected Date | Associated Event | Price Change Type |
-| :--- | :--- | :--- |
-| **Sept 2008** | Lehman Brothers Collapse / GFC | Rapid Mean Reversion (Crash) |
-| **Nov 2014** | OPEC Decision to Maintain Production | Shift to a Low-Price Regime |
-| **March 2020** | COVID-19 Global Pandemic | Unprecedented High-Volatility Shift |
-| **Feb 2022** | Russia-Ukraine Conflict | Geopolitical Risk Premium Spike |
+```text
+./.gitignore
+./dashboard/backend/app.py
+./dashboard/frontend/package.json
+./dashboard/frontend/package-lock.json
+./dashboard/frontend/src/App.jsx
+./data/processed/key_events.csv
+./data/raw/brent_oil_prices.csv
+./notebooks/01_eda.ipynb
+./notebooks/02_stationarity_analysis.ipynb
+./notebooks/03_bayesian_change_point.ipynb
+./notebooks/04_event_association.ipynb
+./reports/final_report.md
+./reports/task_1_foundation.md
+```
 
-## 5. Event Association & Interpretation
-A key finding of this study is the tight temporal alignment between statistical change points and major global shocks. 
-*   **Case Study (2020)**: Following the pandemic onset in March 2020, the model detects a massive variance shift. Daily returns exhibited fluctuations 3.5x higher than the previous 5-year average. 
-*   **Case Study (2014)**: The November 2014 shift marked a fundamental transition from a $100+ price floor to a period of supply abundance driven by US shale, characterized by a lower mean price level but sustained volatility.
+## 5. Methodology
+### 5.1 Exploratory Data Analysis (EDA)
+In `notebooks/01_eda.ipynb`, the series is loaded, indexed by date, and plotted to visualize:
 
-## 6. Assumptions and Limitations
-*   **Correlation vs. Causation**: While the alignment of change points and events is striking, we emphasize that these are temporal correlations. Proving direct causation would require more complex counterfactual structural models.
-*   **Market Efficiency**: The model assumes changes are reflected in prices immediately, though some events may be priced in "early" due to market anticipation.
+- Long-run trend and large swings (boom/bust cycles)
+- Clustering of volatility during crisis periods
+- Plausible “regime” behavior (different eras with different typical levels/variance)
 
-## 7. Conclusion
-The use of Bayesian Change Point models provides a powerful lens for post-hoc analysis of market crises. By identifying when the "rules" of the market change, stakeholders can better calibrate risk models and prepare for future shocks. Future work will extend this model to a Multi-Change Point framework and incorporate macroeconomic variables like GDP growth and interest rates.
+### 5.2 Stationarity Testing
+In `notebooks/02_stationarity_analysis.ipynb`:
 
----
-**References**:
-1.  Bai, J., & Perron, P. (1998). "Estimating and Testing Linear Models with Multiple Structural Changes."
-2.  Killian, L. (2009). "Not All Oil Price Shocks Are Alike."
-3.  PyMC Documentation (2024). "Bayesian Change Point Modeling."
+- Prices are transformed into **log-returns**: \( r_t = \log(P_t) - \log(P_{t-1}) \)
+- An **Augmented Dickey-Fuller (ADF)** test is run on returns to validate the modeling choice (returns are typically closer to stationary than price levels).
+
+### 5.3 Bayesian Change Point Model (single switch-point)
+In `notebooks/03_bayesian_change_point.ipynb`, a Bayesian “switch-point” model is fit to returns:
+
+- The change point \( \tau \) is modeled as an **unknown discrete time index**.
+- Two return means \( \mu_1 \) and \( \mu_2 \) apply before/after \( \tau \).
+- A shared noise scale \( \sigma \) is assumed.
+- Inference is performed using **MCMC sampling** in `PyMC`.
+
+This produces a posterior distribution over \( \tau \), allowing estimation of the most likely break location and uncertainty around it.
+
+### 5.4 Event Association (interpretation overlay)
+In `notebooks/04_event_association.ipynb`, event association is performed by:
+
+- Creating a small table of “key” change-point dates (e.g., 2008-09-15, 2014-11-27, 2020-03-15, 2022-02-24).
+- Matching events within a configurable window (e.g., ±30 days) to provide contextual interpretation.
+
+**Important note**: this step is an interpretation overlay. Only the `PyMC` notebook is a statistical estimation of a change point; the multi-date list used for event association is a curated set of historically significant dates used to contextualize regimes.
+
+## 6. Results (what was produced)
+### 6.1 Stationarity result (qualitative)
+Consistent with standard financial time series behavior:
+
+- **Price levels** behave like a non-stationary process (trend + shocks).
+- **Log-returns** are more stable and suitable for change-point modeling.
+
+### 6.2 Bayesian change point (single switch-point)
+The Bayesian model provides:
+
+- An estimated break index \( \tau \) (posterior mean/median)
+- A corresponding **calendar date** mapped from the returns index
+- An estimated shift in mean return (\( \mu_2 - \mu_1 \)) as an “impact” summary
+
+Because the switch-point model is single-break, it captures one dominant regime change rather than multiple breaks across the full history.
+
+### 6.3 Historical context (key regime-shift dates)
+The interpretation notebook highlights several widely recognized market transition dates and checks for nearby events in the curated timeline, including:
+
+- **2008**: global financial crisis dynamics
+- **2014**: OPEC production/strategy shift and shale-era supply expansion
+- **2020**: COVID-era demand shock + volatility spike
+- **2022**: Russia–Ukraine war and energy security risk premium
+
+## 7. Dashboard (communication artifact)
+The dashboard is a minimal end-to-end demonstrator:
+
+- **Backend** (`dashboard/backend/app.py`): Flask API serving:
+  - `/prices`: returns the raw CSV as JSON records
+  - `/changepoints`: currently returns a single example change point (`2020-03-15`)
+- **Frontend** (`dashboard/frontend/src/...`): React + Recharts line chart that:
+  - plots `Price` over `Date`
+  - draws a vertical reference line at the change-point date
+
+## 8. Assumptions and Limitations
+- **Single-break model**: the Bayesian model implemented is a *single* switch-point; markets often have multiple breaks, so a multi-change-point model would better reflect reality.
+- **Correlation vs. causation**: event alignment is temporal and interpretive; it does not prove causal impact.
+- **Distributional assumptions**: a Gaussian likelihood for returns is a simplification (returns can be heavy-tailed and heteroskedastic).
+- **Operationalization gap**: the dashboard currently displays a hard-coded change-point date; integrating notebook outputs into the API would strengthen reproducibility.
+
+## 9. Conclusion and Future Work
+This project demonstrates a complete workflow from raw data to statistical modeling to stakeholder communication. The Bayesian switch-point model provides a principled way to estimate a structural break in return behavior, while the event overlay offers historical interpretation.
+
+Recommended extensions:
+
+- Implement **multiple** change points (Bayesian MCP or frequentist methods) and compare results.
+- Model **time-varying volatility** (e.g., GARCH or stochastic volatility) alongside mean shifts.
+- Connect notebook outputs to the dashboard by exporting detected change points into `data/processed/` and serving them via the API.
+
+## 10. How to Run (reproducibility notes)
+### 10.1 Run the backend
+From `dashboard/backend/`:
+
+```bash
+python app.py
+```
+
+### 10.2 Run the frontend
+From `dashboard/frontend/`:
+
+```bash
+npm install
+npm start
+```
+
+## 11. Export to PDF
+If you have `pandoc` installed, you can export this report to PDF from the repo root:
+
+```bash
+pandoc reports/final_report.md -o reports/final_report.pdf
+```
